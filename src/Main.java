@@ -25,85 +25,93 @@ public class Main {
     }
 
     public static void main(String[] args) throws IOException {
-        System.out.println("Running PathMaker...");
-        long start = Instant.now().toEpochMilli();
-
-        int[][] board = new int[512][512];
-        for (int y = 0; y < board.length; ++y) {
-            for (int x = 0; x < board[0].length; ++x) {
-                board[y][x] = 0;
-            }
+        System.out.print("Flood fill or squiggles (f or s): ");
+        Scanner scanner = new Scanner(System.in);
+        String input = scanner.nextLine();
+        if (input.equalsIgnoreCase("f")) {
+            FloodFill ff = new FloodFill();
         }
+        else if (input.equalsIgnoreCase("s")) {
+            System.out.println("Running Squiggles...");
+            long start = Instant.now().toEpochMilli();
 
-        int curx = 0;
-        int cury = 0;
-        board[cury][curx] = 1;
-
-
-        for (int i = 0; i < 6942069; ++i) {
-            // if cant move anywhere, break
-            boolean hasMove = false;
-            for (int j = 0; j < neighbourMap.size(); ++j) {
-                int poty = cury + neighbourMap.get(j).getKey();
-                int potx = curx + neighbourMap.get(j).getValue();
-
-                if (potx >= 0 && potx < board.length && poty >= 0 && poty < board.length && neighboursFilled(potx, poty, board) < 2 && board[poty][potx] != 1) {
-                    hasMove = true;
+            int[][] board = new int[512][512];
+            for (int y = 0; y < board.length; ++y) {
+                for (int x = 0; x < board[0].length; ++x) {
+                    board[y][x] = 0;
                 }
             }
 
-            while (!hasMove) {
-                // no, go to a random cell that has been moved to already and continue
-                int neighbour = (int)(Math.random()*8);
-                int poty = cury + neighbourMap.get(neighbour).getKey();
-                int potx = curx + neighbourMap.get(neighbour).getValue();
-                if (potx >= 0 && potx < board.length && poty >= 0 && poty < board.length && board[poty][potx] == 1) {
-                    curx = potx;
-                    cury = poty;
-                    break;
+            int curx = 0;
+            int cury = 0;
+            board[cury][curx] = 1;
+
+
+            for (int i = 0; i < 6942069; ++i) {
+                // if cant move anywhere, break
+                boolean hasMove = false;
+                for (int j = 0; j < neighbourMap.size(); ++j) {
+                    int poty = cury + neighbourMap.get(j).getKey();
+                    int potx = curx + neighbourMap.get(j).getValue();
+
+                    if (potx >= 0 && potx < board.length && poty >= 0 && poty < board.length && neighboursFilled(potx, poty, board) < 2 && board[poty][potx] != 1) {
+                        hasMove = true;
+                    }
+                }
+
+                while (!hasMove) {
+                    // no, go to a random cell that has been moved to already and continue
+                    int neighbour = (int)(Math.random()*8);
+                    int poty = cury + neighbourMap.get(neighbour).getKey();
+                    int potx = curx + neighbourMap.get(neighbour).getValue();
+                    if (potx >= 0 && potx < board.length && poty >= 0 && poty < board.length && board[poty][potx] == 1) {
+                        curx = potx;
+                        cury = poty;
+                        break;
+                    }
+                }
+
+                while (hasMove) {
+                    int neighbour = (int)(Math.random()*8); // num between 0 and 7
+
+                    int poty = cury + neighbourMap.get(neighbour).getKey();
+                    int potx = curx + neighbourMap.get(neighbour).getValue();
+
+                    if (potx >= 0 && potx < board.length && poty >= 0 && poty < board.length && neighboursFilled(potx, poty, board) < 2 && board[poty][potx] != 1) {
+                        curx = potx;
+                        cury = poty;
+                        board[cury][curx] = 1;
+                        break;
+                    }
                 }
             }
 
-            while (hasMove) {
-                int neighbour = (int)(Math.random()*8); // num between 0 and 7
+            BufferedImage img = new BufferedImage(512, 512, 5);
 
-                int poty = cury + neighbourMap.get(neighbour).getKey();
-                int potx = curx + neighbourMap.get(neighbour).getValue();
-
-               if (potx >= 0 && potx < board.length && poty >= 0 && poty < board.length && neighboursFilled(potx, poty, board) < 2 && board[poty][potx] != 1) {
-                    curx = potx;
-                    cury = poty;
-                    board[cury][curx] = 1;
-                    break;
+            for (int y = 0; y < img.getHeight(); ++y) {
+                for (int x = 0; x < img.getWidth(); ++x) {
+                    if (board[y][x] == 1) {
+                        int rgb = 0;
+                        rgb = (rgb << 8) + 0;
+                        rgb = (rgb << 8) + 0;
+                        img.setRGB(x, y, rgb);
+                    }
+                    else {
+                        int rgb = 255;
+                        rgb = (rgb << 8) + 255;
+                        rgb = (rgb << 8) + 255;
+                        img.setRGB(x, y, rgb);
+                    }
                 }
             }
+
+            File file = new File("squiggles.jpg");
+            ImageIO.write(img, "jpg", file);
+            System.out.println("Created squiggles.jpg");
+
+            long end = Instant.now().toEpochMilli();
+            System.out.println("Finished Tracer in " + formatSeconds(start, end));
         }
-
-        BufferedImage img = new BufferedImage(512, 512, 5);
-
-        for (int y = 0; y < img.getHeight(); ++y) {
-            for (int x = 0; x < img.getWidth(); ++x) {
-                if (board[y][x] == 1) {
-                    int rgb = 0;
-                    rgb = (rgb << 8) + 0;
-                    rgb = (rgb << 8) + 0;
-                    img.setRGB(x, y, rgb);
-                }
-                else {
-                    int rgb = 255;
-                    rgb = (rgb << 8) + 255;
-                    rgb = (rgb << 8) + 255;
-                    img.setRGB(x, y, rgb);
-                }
-            }
-        }
-
-        File file = new File("squiggles.jpg");
-        ImageIO.write(img, "jpg", file);
-
-
-        long end = Instant.now().toEpochMilli();
-        System.out.println("Finished Tracer in " + formatSeconds(start, end));
     }
 
     public static boolean moveNotPossible(int x, int y, int[][] board) {
