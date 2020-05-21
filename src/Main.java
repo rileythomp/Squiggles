@@ -1,5 +1,3 @@
-import javafx.util.Pair;
-
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -11,17 +9,17 @@ import java.util.Scanner;
 
 public class Main {
 
-    public static Map<Integer, Pair<Integer, Integer>> neighbourMap;
+    public static Map<Integer, Coord> neighbourMap;
     static {
         neighbourMap = new HashMap<>();
-        neighbourMap.put(0, new Pair(-1, -1));
-        neighbourMap.put(1, new Pair(-1, 0));
-        neighbourMap.put(2, new Pair(-1, 1));
-        neighbourMap.put(3, new Pair(0, -1));
-        neighbourMap.put(4, new Pair(0, 1));
-        neighbourMap.put(5, new Pair(1, -1));
-        neighbourMap.put(6, new Pair(1, -0));
-        neighbourMap.put(7, new Pair(1, 1));
+        neighbourMap.put(0, new Coord(-1, -1));
+        neighbourMap.put(1, new Coord(-1, 0));
+        neighbourMap.put(2, new Coord(-1, 1));
+        neighbourMap.put(3, new Coord(0, -1));
+        neighbourMap.put(4, new Coord(0, 1));
+        neighbourMap.put(5, new Coord(1, -1));
+        neighbourMap.put(6, new Coord(1, -0));
+        neighbourMap.put(7, new Coord(1, 1));
     }
 
     public static void main(String[] args) throws IOException {
@@ -35,6 +33,7 @@ public class Main {
             System.out.println("Running Squiggles...");
             long start = Instant.now().toEpochMilli();
 
+            // init board to all zeroes
             int[][] board = new int[512][512];
             for (int y = 0; y < board.length; ++y) {
                 for (int x = 0; x < board[0].length; ++x) {
@@ -46,13 +45,12 @@ public class Main {
             int cury = 0;
             board[cury][curx] = 1;
 
-
             for (int i = 0; i < 6942069; ++i) {
-                // if cant move anywhere, break
+                // determine if has move
                 boolean hasMove = false;
                 for (int j = 0; j < neighbourMap.size(); ++j) {
-                    int poty = cury + neighbourMap.get(j).getKey();
-                    int potx = curx + neighbourMap.get(j).getValue();
+                    int poty = cury + neighbourMap.get(j).y;
+                    int potx = curx + neighbourMap.get(j).x;
 
                     if (potx >= 0 && potx < board.length && poty >= 0 && poty < board.length && neighboursFilled(potx, poty, board) < 2 && board[poty][potx] != 1) {
                         hasMove = true;
@@ -62,8 +60,8 @@ public class Main {
                 while (!hasMove) {
                     // no, go to a random cell that has been moved to already and continue
                     int neighbour = (int)(Math.random()*8);
-                    int poty = cury + neighbourMap.get(neighbour).getKey();
-                    int potx = curx + neighbourMap.get(neighbour).getValue();
+                    int poty = cury + neighbourMap.get(neighbour).y;
+                    int potx = curx + neighbourMap.get(neighbour).x;
                     if (potx >= 0 && potx < board.length && poty >= 0 && poty < board.length && board[poty][potx] == 1) {
                         curx = potx;
                         cury = poty;
@@ -74,8 +72,8 @@ public class Main {
                 while (hasMove) {
                     int neighbour = (int)(Math.random()*8); // num between 0 and 7
 
-                    int poty = cury + neighbourMap.get(neighbour).getKey();
-                    int potx = curx + neighbourMap.get(neighbour).getValue();
+                    int poty = cury + neighbourMap.get(neighbour).y;
+                    int potx = curx + neighbourMap.get(neighbour).x;
 
                     if (potx >= 0 && potx < board.length && poty >= 0 && poty < board.length && neighboursFilled(potx, poty, board) < 2 && board[poty][potx] != 1) {
                         curx = potx;
@@ -86,8 +84,8 @@ public class Main {
                 }
             }
 
+            // create the image
             BufferedImage img = new BufferedImage(512, 512, 5);
-
             for (int y = 0; y < img.getHeight(); ++y) {
                 for (int x = 0; x < img.getWidth(); ++x) {
                     if (board[y][x] == 1) {
@@ -104,13 +102,12 @@ public class Main {
                     }
                 }
             }
-
             File file = new File("squiggles.jpg");
             ImageIO.write(img, "jpg", file);
             System.out.println("Created squiggles.jpg");
 
             long end = Instant.now().toEpochMilli();
-            System.out.println("Finished Tracer in " + formatSeconds(start, end));
+            System.out.println("Finished squiggles in " + formatSeconds(start, end));
         }
     }
 
