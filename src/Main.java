@@ -65,6 +65,7 @@ public class Main {
                     if (potx >= 0 && potx < board.length && poty >= 0 && poty < board.length && board[poty][potx] == 1) {
                         curx = potx;
                         cury = poty;
+                        board[cury][curx] = 1;
                         break;
                     }
                 }
@@ -111,35 +112,18 @@ public class Main {
         }
     }
 
-    public static boolean moveNotPossible(int x, int y, int[][] board) {
-        boolean moveNotPossible = true;
-
-        if (x > 0 && y > 0 && board[y-1][x-1] == 0) {
-            moveNotPossible = false;
+    public static int get2KernelScore(int x, int y, int[][]board) {
+        int score = 0;
+        for (int dy = -2; dy <= 2; ++dy) {
+            for (int dx = -2; dx <= 2; ++dx) {
+                int newx = x + dx;
+                int newy = y + dy;
+                if (newx >= 0 && newy >= 0 && newx < board.length && newy < board.length && board[newy][newx] == 1) {
+                    score++;
+                }
+            }
         }
-        if (y > 0 && board[y-1][x] == 0) {
-            moveNotPossible = false;
-        }
-        if (x < board.length - 1 && y > 0 && board[y-1][x+1] == 0) {
-            moveNotPossible = false;
-        }
-        if (x > 0 && board[y][x-1] == 0) {
-            moveNotPossible = false;
-        }
-        if (x < board.length - 1 && board[y][x+1] == 0) {
-            moveNotPossible = false;
-        }
-        if (x > 0 && y < board.length - 1 && board[y+1][x-1] == 0) {
-            moveNotPossible = false;
-        }
-        if (y < board.length - 1 && board[y+1][x] == 0) {
-            moveNotPossible = false;
-        }
-        if (x < board.length - 1 && y < board.length - 1 && board[y+1][x+1] == 0) {
-            moveNotPossible = false;
-        }
-
-        return moveNotPossible;
+        return score;
     }
 
     public static int neighboursFilled(int x, int y, int[][] board) {
@@ -171,88 +155,6 @@ public class Main {
         }
 
         return neighboursFilled;
-    }
-
-    public static int updateXWithGuess(int guess, int curx) {
-        if (guess == 0 || guess == 3 || guess == 5) {
-            return curx - 1;
-        }
-        else if (guess == 1 || guess == 6) {
-            return curx;
-        }
-        else {
-            return curx + 1;
-        }
-    }
-
-    public static int updateYWithGuess(int guess, int cury) {
-        if (guess < 3) {
-            return cury -1;
-        }
-        else if (guess < 5) {
-            return cury;
-        }
-        else {
-            return cury + 1;
-        }
-    }
-
-    public static int getIntegerInput(String question) {
-        Scanner scanner = new Scanner(System.in);
-        int ans = 0;
-        while (true) {
-            System.out.print(question);
-            String iterations = scanner.next();
-            try {
-                ans = Integer.parseInt(iterations);
-                break;
-            }
-            catch (NumberFormatException e) {
-                System.out.println("Please enter a positive integer");
-            }
-            catch (NullPointerException e) {
-                System.out.println("Please enter a positive integer");
-            }
-        }
-
-        scanner.close();
-        return ans;
-    }
-
-    public static File getImageInput(String question) throws IOException {
-        Scanner scanner = new Scanner(System.in);
-        while (true) {
-            System.out.print(question);
-            String imgName = scanner.next();
-            File imgFile = new File(imgName);
-            if (imgFile.exists()) {
-                scanner.close();
-                return imgFile;
-            }
-            else {
-                System.out.println(imgFile.getName() + " does not exist");
-            }
-        }
-    }
-
-    public static boolean getBooleanInput(String question) {
-        Scanner scanner = new Scanner(System.in);
-
-        while (true) {
-            System.out.print(question);
-            String bool = scanner.next();
-            if (bool.equalsIgnoreCase("y")) {
-                scanner.close();
-                return true;
-            }
-            else if (bool.equalsIgnoreCase("n")) {
-                scanner.close();
-                return false;
-            }
-            else {
-                System.out.println("Please enter y or n");
-            }
-        }
     }
 
     public static String formatSeconds(long start, long end) {
