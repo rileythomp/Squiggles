@@ -1,6 +1,6 @@
 # Squiggles
 
-A program to create generative squiggle images.
+A program to create generative squiggle images. The algorithm works by making a fixed number of moves in a forward direction, avoiding anywhere the squiggle has already been.
 
 |  |  |
 | --- | --- |
